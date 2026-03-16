@@ -32,6 +32,66 @@
 7.	Compile that file with C compiler and verify the output.
 
 # INPUT
+```
+
+%{
+ int COMMENT=0;
+%}
+identifier [a-zA-Z][a-zA-Z0-9]*
+%%
+#.* { printf("\n%s is a PREPROCESSOR DIRECTIVE",yytext);} 
+int | float | char | double | while | for | do | if |
+break | continue | void | switch | case | long | struct | const | typedef | return | else |
+goto {printf("\n\t%s is a KEYWORD",yytext);}
+"/*" {COMMENT = 1;}
+"*/" {COMMENT = 0;}
+{identifier}\( {if(!COMMENT)printf("\n\nFUNCTION\n\t%s",yytext);}
+\{ {if(!COMMENT) printf("\n BLOCK BEGINS");}
+\} {if(!COMMENT) printf("\n BLOCK ENDS");}
+{identifier}(\[[0-9]*\])? {if(!COMMENT) printf("\n %s IDENTIFIER",yytext);}
+\".*\" {if(!COMMENT) printf("\n\t%s is a STRING",yytext);}
+[0-9]+ {if(!COMMENT) printf("\n\t%s is a NUMBER",yytext);}
+\)(\;)? {if(!COMMENT) printf("\n\t");ECHO;printf("\n");}
+\( ECHO;
+= {if(!COMMENT)printf("\n\t%s is an ASSIGNMENT OPERATOR",yytext);}
+\<= |
+\>= |
+\< |
+== |
+\> {if(!COMMENT) printf("\n\t%s is a RELATIONAL OPERATOR",yytext);}
+%%
+int main(int argc,char **argv)
+{
+if (argc > 1)
+{
+FILE *file;
+file = fopen(argv[1],"r"); if(!file)
+{
+printf("could not open %s \n",argv[1]); exit(0);
+}
+yyin = file;
+}
+yylex(); printf("\n\n"); return 0;
+} int yywrap()
+{
+return 0;
+}
+```
 # OUTPUT
+```
+Microsoft Windows [Version 10.0.26200.7623]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Dev-Cpp\TDM-GCC-64\bin>flex exp2-0058.l
+
+C:\Dev-Cpp\TDM-GCC-64\bin>gcc lex.yy.c -o exp2-0058.exe
+
+C:\Dev-Cpp\TDM-GCC-64\bin>exp2-0058.exe
+a+b*c$
+
+a IDENTIFIER+
+b IDENTIFIER*
+c IDENTIFIER$
+```
 # RESULT
 ## The lexical analyzer is implemented using lex and the output is verified.
